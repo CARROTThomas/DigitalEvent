@@ -26,9 +26,3 @@ body
     height: 500px;
     width: auto;
 }
-
-.controls
-{
-    display: flex;
-    align-items: center;
-}
