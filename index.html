@@ -1,16 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Photomaton</title>
+    <title>index</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
+<div class="container ">
+    <div class="contentarea">
+        <div class="camera">
+            <video id="video">Le flux vidéo n'est pas disponible.</video>
+            <button id="startbutton">Prendre une photo</button>
+        </div>
+        <canvas id="canvas"> </canvas>
+        <div class="output">
+            <canvas id="canvas1" class="gris"> </canvas>
+            <img id="photo" class="none" alt="L'image capturée apparaîtra ici.">
+        </div>
+    </div>
 
-<div class="container">
-    <canvas id="canvas1" class="canvas"></canvas>
 </div>
-
+<button class="video">Video</button>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 <script src="JS/main.js"></script>
 </body>
 </html>
