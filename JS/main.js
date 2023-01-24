@@ -25,6 +25,9 @@
             videoBtn.classList.toggle('active')
         }
     })
+    videoBtn.addEventListener('click', ()=>{
+        videoBtn.classList.toggle('active')
+    })
 
     setInterval(takeVid, 0.1)
 
@@ -147,7 +150,7 @@
                     this.color = color;
                 }
                 draw(ctx){
-                    ctx.fillStyle = 'white';
+                    ctx.fillStyle = 'black';
                     ctx.fillText(this.symbol, this.x, this.y)
                 }
             }
