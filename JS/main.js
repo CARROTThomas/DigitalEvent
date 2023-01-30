@@ -1,7 +1,4 @@
 (() => {
-    // La largeur et la hauteur de la photo capturée. On utilisera
-    // une largeur fixe et on calculera la hauteur pour correspondre
-    // aux proportions du flux vidéo d'entrée.
 
     const width = 420; // On met à l'échelle la photo pour avoir cette largeur
     let height = 0;    // On calcule cette valeur ensuite selon le flux d'entrée
@@ -19,23 +16,16 @@
     let photo = null;
     let startbutton = null;
 
-    const videoBtn = document.querySelector('.video')
+
+    // lancer un script
     window.addEventListener('keypress', (event)=>{
-        if (event.key == "g"){
-            videoBtn.classList.toggle('active')
+        if (event.key == " "){
+            takepicture();
+            divCamera.classList.add("display")
+            divCameraResult.classList.add("displayBlock")
+            console.log('script à lancé')
         }
     })
-    videoBtn.addEventListener('click', ()=>{
-        videoBtn.classList.toggle('active')
-    })
-
-    setInterval(takeVid, 0.1)
-
-    function takeVid(){
-        if (videoBtn.classList.contains('active'))
-        takepicture()
-    }
-
 
     function showViewLiveResultButton() {
         if (window.self !== window.top) {
@@ -59,8 +49,9 @@
         }
         video = document.getElementById("video");
         canvas = document.getElementById("canvas");
-        photo = document.getElementById("photo");
         startbutton = document.getElementById("startbutton");
+        divCamera = document.querySelector('.camera')
+        divCameraResult = document.querySelector('.output')
 
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: false })
@@ -95,11 +86,10 @@
             false
         );
 
-        startbutton.addEventListener(
-            "click",
-            (ev) => {
+        startbutton.addEventListener("click", () => {
                 takepicture();
-                ev.preventDefault();
+                divCamera.classList.add("display")
+                divCameraResult.classList.add("displayBlock")
             },
             false
         );
@@ -115,17 +105,9 @@
         context.fillStyle = "#AAA";
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        const data = canvas.toDataURL("image/png");
-        photo.setAttribute("src", data);
-
+        sourceImage = canvas.toDataURL("image/png");
+        //photo.setAttribute("src", sourceImage);
     }
-
-    // On capture une photo en récupérant le contenu courant de la
-    // vidéo, qu'on dessine dans un canevas puis qu'on convertit
-    // en une URL de données contenant l'image au format PNG.
-    // En utilisant un canevas en dehors de l'écran, on peut
-    // modifier sa taille et/ou appliquer d'autres modifications
-    // avant de l'afficher à l'écran.
 
     function takepicture() {
         const context = canvas.getContext("2d");
@@ -138,16 +120,16 @@
             let data = canvas.toDataURL("image/png");
             //photo.setAttribute("src", data);
             //--------------------------------------------------------------
-            let canvas1 =document.querySelector('#canvas1')
+            let canvas1 = document.querySelector('#canvas1')
             const ctx = canvas1.getContext('2d');
             const image1 = new Image();
             image1.src=data
+            //console.log(image1.src) // ################## Lien de la base64
             class Cell {
-                constructor(x, y, symbol, color) {
+                constructor(x, y, symbol) {
                     this.x = x;
                     this.y = y;
                     this.symbol = symbol;
-                    this.color = color;
                 }
                 draw(ctx){
                     ctx.fillStyle = 'white';
@@ -167,7 +149,7 @@
                     this.#height = height;
                     this.#ctx.drawImage(image1, 0, 0, this.#width, this.#height);
                     this.#pixels = this.#ctx.getImageData(0, 0, this.#width, this.#height);
-                    console.log(this.#pixels.data)
+                    //console.log(this.#pixels.data) // ################## Grille
                 }
                 #convertToSymbol(g) {
                     if (g > 250) return '@';
@@ -219,25 +201,97 @@
                 }
             }
 
-            let effect;
+            let effect; // ################## objet = tableau => tableau = coordonnées, symbol
 
             image1.onload = function initialize(){
                 canvas1.width = image1.width;
                 canvas1.height = image1.height;
                 effect = new AscciEffect(ctx, image1.width, image1.height);
-                effect.draw(4);// valeur de la resolution
+                effect.draw(5);
+                // valeur de la resolution
+                // (4 ou 5 pour fond noir et caractère blanc
+                // (5 ou 6 pour fond blanc et caractère noir)
             }
+
+            const {
+                PDFDocument,
+                StandardFonts,
+                rgb
+            } = PDFLib
+
+            async function createPdf() {
+                // Create a new PDFDocument
+                const pdfDoc = await PDFDocument.create()
+
+                // Embed the Times Roman font
+                const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman)
+
+                // Add a blank page to the document
+                const page = pdfDoc.addPage()
+
+                // Get the width and height of the page
+                const {
+                    width,
+                    height
+                } = page.getSize()
+
+                // Draw a string of text toward the top of the page
+                const fontSize = 30
+
+                const template = document.querySelector('.template')
+
+                page.drawText(truc(), {
+                    x: 50,
+                    y: height - 4 * fontSize,
+                    size: fontSize,
+                    font: timesRomanFont,
+                    color: rgb(0, 0.53, 0.71),
+                })
+
+                // Serialize the PDFDocument to bytes (a Uint8Array)
+                const pdfBytes = await pdfDoc.save()
+
+                // Trigger the browser to download the PDF document
+                download(pdfBytes, "bureauPdf.pdf", "Bureau");
+            }
+
+            setTimeout(()=>{
+                createPdf()
+            }, 2000)
             //-------------------------------------------------
         } else {
             clearphoto();
         }
     }
-
-    // On met en place un gestionnaire d'évènement pour exécuter
-    // le code lorsque le chargement du document est terminé.
-
     window.addEventListener("load", startup, false);
 
-
 })();
+
+
+
+
+
+
+async function truc(){
+    return await html2canvas(document.getElementById("canvas1"), {
+        allowTaint: true,
+        useCORS: true,
+    })
+        .then(function (canvas) {
+            // It will return a canvas element
+            let image = canvas.toDataURL("image/png", 0.5);
+            let bidule = new Image()
+            bidule.src=image
+
+            console.log(bidule)
+            return bidule
+        })
+        .catch((e) => {
+            // Handle errors
+            console.log(e);
+        });
+}
+
+
+
 
